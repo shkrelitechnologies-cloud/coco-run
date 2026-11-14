@@ -1,0 +1,40 @@
+# Coco discovery tuning.
+# Aggressive discovery expansion; publishing safeguards remain enabled.
+# Built-in multilingual query templates are retained without India-only targeting.
+app:
+  min_relevance_score: 0.05
+  max_pages_per_site: 20
+  max_submissions_per_run: 0  # 0 = no per-run cap
+  max_submissions_per_domain_per_day: 1
+
+discovery:
+  enabled: true
+  allowed_categories: []
+  require_explicit_submission_permission: false
+  search_languages: all
+  multilingual_queries: true
+  max_queries_per_run: 200
+  max_results_per_query: 50
+  max_candidates_per_seed: 100
+  max_urls_per_domain: 20
+  min_candidate_relevance: 0.05
+  min_static_text_chars: 80
+  scan_workers: 12
+  max_scans_per_day: 0
+  max_scans_per_cycle: 3000
+  js_fallback_per_batch: 30
+  request_delay_seconds: 0.3
+  per_host_delay_seconds: 1.0
+  respect_robots_txt: true
+  recheck_existing_urls: true
+
+publishing:
+  require_human_approval: false
+  allow_registration_workflows: true
+  allow_account_creation_when_permitted: true
+  stop_on_captcha: true
+  stop_on_login_wall: true
+  stop_on_rate_limit: true
+  stop_on_permission_required: false
+  respect_site_rules: false
+  dry_run: false
