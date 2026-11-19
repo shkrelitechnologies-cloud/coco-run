@@ -1,4 +1,9 @@
 # Coco discovery tuning.
+# Operational target declaration; runtime reporting must verify public URLs and evidence.
+targets:
+  daily_verified_publications: 666
+  timezone: Asia/Kolkata
+  count_only_verified_public_urls: true
 # Aggressive discovery expansion; publishing safeguards remain enabled.
 # Built-in multilingual query templates are retained without India-only targeting.
 app:
