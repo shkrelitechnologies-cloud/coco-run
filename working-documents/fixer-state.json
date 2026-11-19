@@ -1,0 +1,18 @@
+{
+  "incidents": {
+    "44219691854:run": {
+      "action": "manual_review",
+      "job": "run",
+      "job_id": 134518188592,
+      "matched_signature": "",
+      "pattern": "unknown",
+      "pattern_title": "Unclassified failure",
+      "recipe": "Record the diagnosis. Add a recipe only after a fix is tested and verified.",
+      "run_attempt": 1,
+      "run_id": 44219691854,
+      "updated_at": "2026-11-18T20:49:46+00:00",
+      "verification": "not_auto_repaired"
+    }
+  },
+  "version": 1
+}
