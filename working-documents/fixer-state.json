@@ -38,6 +38,19 @@
       "run_id": 44856973269,
       "updated_at": "2026-11-21T03:01:25+00:00",
       "verification": "not_auto_repaired"
+    },
+    "44880316568:run": {
+      "action": "manual_review",
+      "job": "run",
+      "job_id": 136773974518,
+      "matched_signature": "",
+      "pattern": "unknown",
+      "pattern_title": "Unclassified failure",
+      "recipe": "Record the diagnosis. Add a recipe only after a fix is tested and verified.",
+      "run_attempt": 1,
+      "run_id": 44880316568,
+      "updated_at": "2026-11-21T07:50:34+00:00",
+      "verification": "not_auto_repaired"
     }
   },
   "version": 1
