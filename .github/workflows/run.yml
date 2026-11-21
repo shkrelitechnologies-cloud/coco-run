@@ -101,7 +101,12 @@ jobs:
             fi
           fi
           restored=0
-          if [ -f /tmp/priv/silk.db.gz ]; then
+          if compgen -G "/tmp/priv/silk.db.gz.part-*" > /dev/null; then
+            # GitHub rejects individual Git blobs above 100 MB. Restore the
+            # ordered 80 MiB chunks as one gzip stream before validating SQLite.
+            if cat /tmp/priv/silk.db.gz.part-* | gunzip -c > silk.db 2>/dev/null && python -c "import sqlite3;sqlite3.connect('silk.db').execute('select count(*) from submissions').fetchone()" 2>/dev/null; then restored=1; echo "restored from chunked silk.db.gz"; else echo "chunked silk.db.gz restore failed, falling back"; fi
+          elif [ -f /tmp/priv/silk.db.gz ]; then
+            # Backward-compatible restore for older single-file snapshots.
             if gunzip -c /tmp/priv/silk.db.gz > silk.db 2>/dev/null && python -c "import sqlite3;sqlite3.connect('silk.db').execute('select count(*) from submissions').fetchone()" 2>/dev/null; then restored=1; echo "restored from silk.db.gz"; else echo "silk.db.gz restore failed, falling back"; fi
           fi
           if [ "$restored" = 0 ]; then
@@ -341,11 +346,22 @@ jobs:
           s = sqlite3.connect("silk.db"); d = sqlite3.connect("/tmp/full.db"); s.backup(d); d.close(); s.close()
           PY2
             gzip -c -6 /tmp/full.db > /tmp/priv/silk.db.gz
-          [ "$(stat -c %s /tmp/priv/silk.db.gz)" -gt 90000000 ] && echo "SIZE WARNING: private gz over 90 MB (GitHub limit 100 MB)"
+            # Replace the single oversized blob with ordered 80 MiB chunks.
+            # Each chunk stays below GitHub's 100 MB per-file hard limit.
+            for old in /tmp/priv/silk.db.gz.part-*; do
+              [ -e "$old" ] || continue
+              git -C /tmp/priv rm -q -f --ignore-unmatch "$old"
+            done
+            git -C /tmp/priv rm -q -f --ignore-unmatch silk.db silk.db.gz
+            split -b 80m -d -a 2 /tmp/priv/silk.db.gz /tmp/priv/silk.db.gz.part-
+            rm -f /tmp/priv/silk.db.gz
+            for part in /tmp/priv/silk.db.gz.part-*; do
+              size=$(stat -c %s "$part")
+              [ "$size" -le 83886080 ] || { echo "chunk exceeds 80 MiB: $part"; return 1; }
+            done
             [ -f /tmp/submissions.csv ] && cp /tmp/submissions.csv /tmp/priv/submissions.csv && git -C /tmp/priv add submissions.csv
             [ -f /tmp/daily_counts.csv ] && cp /tmp/daily_counts.csv /tmp/priv/daily_counts.csv && git -C /tmp/priv add daily_counts.csv
-            git -C /tmp/priv rm -q -f --ignore-unmatch silk.db
-            git -C /tmp/priv add silk.db.gz
+            git -C /tmp/priv add silk.db.gz.part-*
             if ! git -C /tmp/priv diff --cached --quiet; then
               git -C /tmp/priv commit -qm "$1"
               for i in 1 2 3; do
