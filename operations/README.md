@@ -15,6 +15,10 @@ COCO's unattended worker and watchdog are owned by this repository.
 - A blocked website or individual candidate must be logged and skipped so later eligible candidates can be processed. Site rules, CAPTCHA, authentication, moderation, rate limits, and permission gates must never be bypassed.
 - A systemic blocker (missing secret, GitHub permission failure, unavailable API, or invalid campaign source) is recorded as a blocker and must not be mislabeled healthy.
 
+## Private SQLite persistence
+
+The private COCO SQLite snapshot is compressed and stored as ordered `silk.db.gz.part-*` chunks of at most 80 MiB each. Restore concatenates the chunks in lexical order and validates the resulting SQLite database before the worker starts. The worker retains backward-compatible restore from the older single-file `silk.db.gz` snapshot. This avoids GitHub's 100 MB per-file Git blob rejection; a successful worker run is not considered persisted until the private push succeeds.
+
 ## Source of truth
 The private COCO database and its `daily_counts.csv` / submission records remain the authoritative publication ledger. This repository's watchdog artifact `coco-watchdog-<run>` contains the latest health check. The public repository must not expose private campaign data, credentials, or donor details.
 
