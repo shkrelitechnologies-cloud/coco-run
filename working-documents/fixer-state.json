@@ -64,6 +64,32 @@
       "run_id": 44894018633,
       "updated_at": "2026-11-21T12:39:22+00:00",
       "verification": "not_auto_repaired"
+    },
+    "44920282396:run": {
+      "action": "manual_review",
+      "job": "run",
+      "job_id": 136894614633,
+      "matched_signature": "",
+      "pattern": "unknown",
+      "pattern_title": "Unclassified failure",
+      "recipe": "Record the diagnosis. Add a recipe only after a fix is tested and verified.",
+      "run_attempt": 1,
+      "run_id": 44920282396,
+      "updated_at": "2026-11-21T19:48:15+00:00",
+      "verification": "not_auto_repaired"
+    },
+    "44931391612:run": {
+      "action": "manual_review",
+      "job": "run",
+      "job_id": 136928576918,
+      "matched_signature": "",
+      "pattern": "unknown",
+      "pattern_title": "Unclassified failure",
+      "recipe": "Record the diagnosis. Add a recipe only after a fix is tested and verified.",
+      "run_attempt": 1,
+      "run_id": 44931391612,
+      "updated_at": "2026-11-21T19:48:14+00:00",
+      "verification": "not_auto_repaired"
     }
   },
   "version": 1

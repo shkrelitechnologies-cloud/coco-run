@@ -70,8 +70,8 @@
       "action": "manual_review",
       "allowed_jobs": [],
       "id": "unknown",
-      "last_seen": "2026-11-21T12:39:22+00:00",
-      "observations": 5,
+      "last_seen": "2026-11-21T19:48:15+00:00",
+      "observations": 7,
       "signatures": [],
       "title": "Unclassified failure",
       "verification": "Record the diagnosis. Add a recipe only after a fix is tested and verified."
