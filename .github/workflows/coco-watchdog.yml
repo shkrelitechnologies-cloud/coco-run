@@ -1,0 +1,40 @@
+name: COCO unattended watchdog
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/scripts/coco_watchdog.py
+      - .github/workflows/coco-watchdog.yml
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+permissions:
+  actions: write
+  contents: read
+concurrency:
+  group: coco-watchdog
+  cancel-in-progress: false
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate watchdog source
+        run: python -m py_compile .github/scripts/coco_watchdog.py
+      - name: Check worker and recover stale schedule
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python .github/scripts/coco_watchdog.py
+      - name: Preserve watchdog report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coco-watchdog-${{ github.run_number }}
+          path: state/coco-watchdog.json
+          if-no-files-found: warn
+          retention-days: 30
