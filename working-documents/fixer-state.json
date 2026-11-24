@@ -311,6 +311,32 @@
       "run_id": 45169169635,
       "updated_at": "2026-11-23T21:54:01+00:00",
       "verification": "not_auto_repaired"
+    },
+    "45328225780:repair": {
+      "action": "manual_review",
+      "job": "repair",
+      "job_id": 138222858619,
+      "matched_signature": "",
+      "pattern": "unknown",
+      "pattern_title": "Unclassified failure",
+      "recipe": "Record the diagnosis. Add a recipe only after a fix is tested and verified.",
+      "run_attempt": 1,
+      "run_id": 45328225780,
+      "updated_at": "2026-11-24T05:45:17+00:00",
+      "verification": "not_auto_repaired"
+    },
+    "45328720761:repair": {
+      "action": "manual_review",
+      "job": "repair",
+      "job_id": 138224427666,
+      "matched_signature": "",
+      "pattern": "unknown",
+      "pattern_title": "Unclassified failure",
+      "recipe": "Record the diagnosis. Add a recipe only after a fix is tested and verified.",
+      "run_attempt": 1,
+      "run_id": 45328720761,
+      "updated_at": "2026-11-24T05:45:16+00:00",
+      "verification": "not_auto_repaired"
     }
   },
   "version": 1
