@@ -371,17 +371,7 @@ jobs:
             fi
           }
           prune() {
-            if [ "${PRIV_OK:-0}" = 1 ] && compgen -G "/tmp/priv/silk.db.gz.part-*" > /dev/null; then
-              br=$(git -C /tmp/priv rev-parse --abbrev-ref HEAD)
-              if git -C /tmp/priv checkout -q --orphan lean_tmp && git -C /tmp/priv add -A && git -C /tmp/priv commit -qm "lean: single snapshot of latest DB" && git -C /tmp/priv push -q -f origin lean_tmp:"$br"; then
-                git -C /tmp/priv branch -M "$br"; echo "private history pruned to latest snapshot"
-              else
-                echo "private prune skipped or failed"; git -C /tmp/priv checkout -q "$br" 2>/dev/null || true
-              fi
-            fi
-            if [ "${PRIV_OK:-0}" = 1 ]; then
-              git fetch -q --depth 1 origin main && base=$(git rev-parse FETCH_HEAD) && c=$(git commit-tree "$(git rev-parse "$base^{tree}")" -m "lean: single snapshot") && git push -q -f origin "$c:refs/heads/main" && echo "public history pruned to latest snapshot" || echo "public prune skipped or failed"
-            fi
+            echo "History pruning is disabled and commit history is preserved."
           }
 
           cat > /tmp/summary.py <<'PYSUM'
