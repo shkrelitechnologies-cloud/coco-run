@@ -17,27 +17,32 @@ jobs:
         run: |
           python - <<'PY'
           from pathlib import Path
-          import re
 
           path = Path('.github/workflows/run.yml')
-          source = path.read_text(encoding='utf-8')
-          start_pattern = re.compile(r'(?m)^(?P<indent>[ \\t]*)prune\\(\\)[ \\t]*\\{[ \\t]*\\r?\\n')
-          match = start_pattern.search(source)
-          if not match:
-              raise SystemExit('Expected prune() function not found; refusing to modify an unexpected workflow')
-          indent = match.group('indent')
-          end_pattern = re.compile(r'(?m)^' + re.escape(indent) + r'\\}[ \\t]*\\r?$')
-          end = end_pattern.search(source, match.end())
-          if not end:
-              raise SystemExit('Could not find the prune() function boundary; refusing to modify the workflow')
-          function_end = end.end()
-          if function_end < len(source) and source[function_end:function_end + 1] == '\\n':
-              function_end += 1
-          block = source[match.start():function_end]
+          lines = path.read_text(encoding='utf-8').splitlines(keepends=True)
+          starts = [i for i, line in enumerate(lines) if line.lstrip(' \\t').startswith('prune() {')]
+          if len(starts) != 1:
+              raise SystemExit(f'Expected one prune() function, found {len(starts)}; refusing to modify workflow')
+          start = starts[0]
+          indent = lines[start][:len(lines[start]) - len(lines[start].lstrip(' \\t'))]
+          end = None
+          for i in range(start + 1, len(lines)):
+              line_indent = lines[i][:len(lines[i]) - len(lines[i].lstrip(' \\t'))]
+              if lines[i].strip() == '}' and line_indent == indent:
+                  end = i
+                  break
+          if end is None:
+              raise SystemExit('Could not find prune() boundary; refusing to modify workflow')
+          block = ''.join(lines[start:end + 1])
           if 'git push -q -f origin' not in block:
               raise SystemExit('Expected force-push history rewrite not found in prune(); refusing to alter workflow')
-          replacement = indent + 'prune() {\\n' + indent + '  echo "history pruning disabled; preserve full commit history"\\n' + indent + '}\\n'
-          updated = source[:match.start()] + replacement + source[function_end:]
+          newline = '\\r\\n' if lines[start].endswith('\\r\\n') else '\\n'
+          replacement = [
+              indent + 'prune() {' + newline,
+              indent + '  echo "history pruning disabled; preserve full commit history"' + newline,
+              indent + '}' + newline,
+          ]
+          updated = ''.join(lines[:start] + replacement + lines[end + 1:])
           if 'git push -q -f origin' in updated:
               raise SystemExit('Force-push command remains in workflow; refusing to commit')
           path.write_text(updated, encoding='utf-8')
