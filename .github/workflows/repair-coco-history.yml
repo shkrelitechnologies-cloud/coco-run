@@ -1,0 +1,47 @@
+name: Preserve COCO repository history
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: coco-history-repair
+  cancel-in-progress: false
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Replace destructive history pruning with a no-op
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('.github/workflows/run.yml')
+          source = path.read_text(encoding='utf-8')
+          pattern = re.compile(r'^            prune\(\) \{\n.*?^            \}\n', re.MULTILINE | re.DOTALL)
+          replacement = '            prune() {\n              echo "history pruning disabled; preserve full commit history"\n            }\n'
+          match = pattern.search(source)
+          if not match:
+              raise SystemExit('Expected prune() function not found; refusing to modify an unexpected workflow')
+          if 'git push -q -f origin' not in match.group(0):
+              raise SystemExit('Expected force-push history rewrite not found in prune(); refusing to alter workflow')
+          updated = pattern.sub(replacement, source, count=1)
+          if updated == source or 'git push -q -f origin' in pattern.search(updated).group(0):
+              raise SystemExit('History-pruning function was not safely neutralized')
+          path.write_text(updated, encoding='utf-8')
+          print('Replaced the history-rewriting prune function with a safe no-op.')
+          PY
+      - name: Commit the history-preserving fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/workflows/run.yml
+          if git diff --cached --quiet; then
+            echo 'No change was needed; the history-pruning function is already safe.'
+            exit 0
+          fi
+          git commit -m "Disable destructive COCO history pruning"
+          git push origin HEAD:main
